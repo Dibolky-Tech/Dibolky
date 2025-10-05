@@ -13,6 +13,7 @@ import AwardsSection from '@/components/AwardsSection'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
+import PerformanceMonitor from '@/components/PerformanceMonitor'
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
       <ClientWrapper>
         <PageTransition />
         <MagicCursor />
+        <PerformanceMonitor />
       </ClientWrapper>
       
       <Header />

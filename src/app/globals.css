@@ -1,4 +1,3 @@
-/* Import the original CSS files - these will be loaded via link tags in layout.tsx */
 
 @tailwind base;
 @tailwind components;
@@ -20,6 +19,10 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   font-family: var(--font-poppins);
+  /* Performance optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
 }
 
 body {
@@ -88,4 +91,61 @@ body.hydrated .tt-avlist-item {
   to {
     opacity: 1;
   }
+}
+
+/* Performance optimizations for smooth scrolling */
+* {
+  /* Enable hardware acceleration for all elements */
+  will-change: auto;
+}
+
+/* Optimize 3D canvas performance while maintaining interactivity */
+#page-header canvas {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Ensure proper interaction support */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Optimize scrolling performance */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+Optimize animations and transitions
+.tt-magnetic-item,
+.tt-btn,
+.tt-big-round-ptn-inner,
+.tt-scroll-down,
+.ph-social a {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize text rendering */
+h1, h2, h3, h4, h5, h6 {
+  text-rendering: optimizeLegibility;
+}
+
+/* Optimize image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
