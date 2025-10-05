@@ -33,10 +33,30 @@ function useIsSmallScreen(breakpoint = 768) {
   return isSmall;
 }
 
+// Utility to detect touch devices
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    function check() {
+      setIsTouch(
+        "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0 ||
+          // @ts-ignore
+          navigator.msMaxTouchPoints > 0
+      );
+    }
+    check();
+    window.addEventListener("touchstart", check, { passive: true });
+    return () => window.removeEventListener("touchstart", check);
+  }, []);
+  return isTouch;
+}
+
 export default function PageHeader() {
   const [interacting, setInteracting] = useState(false);
   const [fpsFactor, setFpsFactor] = useState(1);
   const isSmallScreen = useIsSmallScreen();
+  const isTouchDevice = useIsTouchDevice();
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   const canvasConfig = useMemo(
@@ -60,7 +80,7 @@ export default function PageHeader() {
   const quality: "low" | "high" =
     interacting || fpsFactor < 0.8 ? "low" : "high";
 
-  // Allow 3D interaction on all screens, but on small screens, allow scrolling as well
+  // Allow 3D interaction on all screens, but on touch screens, allow scrolling as well
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
       setInteracting(true);
@@ -74,8 +94,9 @@ export default function PageHeader() {
     []
   );
 
-  // Remove pointerEvents disabling for small screens so both 3D and scroll work
-  // Remove the useEffect that disables pointer events on small screens
+  // For touch devices, allow vertical scroll while interacting with 3D
+  // Use touchAction: 'pan-y' and pointerEvents: 'auto'
+  // For non-touch devices, pointerEvents: 'auto' is fine
 
   useEffect(() => {
     if (!interacting) return;
@@ -88,8 +109,9 @@ export default function PageHeader() {
     return () => cancelAnimationFrame(raf);
   }, [interacting]);
 
-  // On small screens, allow both 3D interaction and scrolling
+  // On touch screens, allow both 3D interaction and scrolling
   // touchAction: 'pan-y' allows vertical scrolling while interacting
+  // For non-touch, keep pointerEvents: 'auto'
   return (
     <div
       id="page-header"
@@ -103,7 +125,7 @@ export default function PageHeader() {
         style={{
           zIndex: 10,
           pointerEvents: "auto",
-          touchAction: "pan-y", // Always allow vertical scroll
+          touchAction: isTouchDevice ? "pan-y" : undefined, // Allow vertical scroll on touch devices
         }}
       >
         <Canvas
@@ -141,6 +163,8 @@ export default function PageHeader() {
             onEnd={() => {
               setInteracting(false);
             }}
+            // For touch devices, allow scroll while interacting
+            // For @react-three/drei OrbitControls, you can set 'touch-action' via props, but for custom controls, ensure you don't call e.preventDefault() on touchmove
           >
             <Center>
               <Model quality={"high"} />
