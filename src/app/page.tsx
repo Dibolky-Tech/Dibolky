@@ -27,7 +27,7 @@ export default function Home() {
       <Header />
       
       <div id="tt-content-wrap">
-        <PageHeader />
+        {/* <PageHeader /> */}
         
         <div id="tt-page-content">
           <AboutSection />
