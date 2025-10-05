@@ -37,8 +37,10 @@ export function BackgroundText() {
       maxWidth={maxWidth}
       lineHeight={1}
       renderOrder={0}
+      // Keep it extra cheap (no tone mapping pass)
+      material-toneMapped={false}
     >
-      HUMAN{"\n"}CRAFTED
+      HUMAN{'\n'}CRAFTED
     </Text>
   )
 }
