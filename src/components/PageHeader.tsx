@@ -60,30 +60,22 @@ export default function PageHeader() {
   const quality: "low" | "high" =
     interacting || fpsFactor < 0.8 ? "low" : "high";
 
-  // Only allow 3D interaction if not on small screens
+  // Allow 3D interaction on all screens, but on small screens, allow scrolling as well
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!isSmallScreen) setInteracting(true);
+      setInteracting(true);
     },
-    [isSmallScreen]
+    []
   );
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!isSmallScreen) setInteracting(false);
+      setInteracting(false);
     },
-    [isSmallScreen]
+    []
   );
 
-  // Prevent touch events from triggering 3D interaction on small screens
-  useEffect(() => {
-    if (!isSmallScreen || !canvasWrapperRef.current) return;
-    const el = canvasWrapperRef.current;
-    // Prevent pointer events from reaching the canvas on small screens
-    el.style.pointerEvents = "none";
-    return () => {
-      el.style.pointerEvents = "";
-    };
-  }, [isSmallScreen]);
+  // Remove pointerEvents disabling for small screens so both 3D and scroll work
+  // Remove the useEffect that disables pointer events on small screens
 
   useEffect(() => {
     if (!interacting) return;
@@ -96,6 +88,8 @@ export default function PageHeader() {
     return () => cancelAnimationFrame(raf);
   }, [interacting]);
 
+  // On small screens, allow both 3D interaction and scrolling
+  // touchAction: 'pan-y' allows vertical scrolling while interacting
   return (
     <div
       id="page-header"
@@ -108,14 +102,12 @@ export default function PageHeader() {
         className="absolute top-0 left-0 w-full h-screen"
         style={{
           zIndex: 10,
-          // On small screens, let pointer events pass through so user can scroll
-          pointerEvents: isSmallScreen ? "none" : "auto",
-          touchAction: isSmallScreen ? "pan-y" : "auto",
+          pointerEvents: "auto",
+          touchAction: "pan-y", // Always allow vertical scroll
         }}
       >
         <Canvas
           {...canvasConfig}
-          // Only enable pointer events for interaction on non-small screens
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
@@ -139,16 +131,15 @@ export default function PageHeader() {
             polar={[-Math.PI / 12, Math.PI / 12]}
             drag={0.96}
             sensitivity={0.005}
-            // Only allow 3D controls on non-small screens
-            enabled={!isSmallScreen}
+            // Always allow 3D controls
             onStart={() => {
-              if (!isSmallScreen) setInteracting(true);
+              setInteracting(true);
             }}
             onChange={() => {
-              if (!isSmallScreen) invalidate();
+              invalidate();
             }}
             onEnd={() => {
-              if (!isSmallScreen) setInteracting(false);
+              setInteracting(false);
             }}
           >
             <Center>
