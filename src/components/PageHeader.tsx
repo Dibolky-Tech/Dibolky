@@ -15,12 +15,29 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { invalidate } from "@react-three/fiber";
+
+// Utility to detect small screens (mobile/tablet)
+function useIsSmallScreen(breakpoint = 768) {
+  const [isSmall, setIsSmall] = useState(false);
+  useEffect(() => {
+    function check() {
+      setIsSmall(window.innerWidth < breakpoint);
+    }
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isSmall;
+}
 
 export default function PageHeader() {
   const [interacting, setInteracting] = useState(false);
   const [fpsFactor, setFpsFactor] = useState(1);
+  const isSmallScreen = useIsSmallScreen();
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   const canvasConfig = useMemo(
     () => ({
@@ -43,8 +60,30 @@ export default function PageHeader() {
   const quality: "low" | "high" =
     interacting || fpsFactor < 0.8 ? "low" : "high";
 
-  const onPointerDown = useCallback(() => setInteracting(true), []);
-  const onPointerUp = useCallback(() => setInteracting(false), []);
+  // Only allow 3D interaction if not on small screens
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isSmallScreen) setInteracting(true);
+    },
+    [isSmallScreen]
+  );
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isSmallScreen) setInteracting(false);
+    },
+    [isSmallScreen]
+  );
+
+  // Prevent touch events from triggering 3D interaction on small screens
+  useEffect(() => {
+    if (!isSmallScreen || !canvasWrapperRef.current) return;
+    const el = canvasWrapperRef.current;
+    // Prevent pointer events from reaching the canvas on small screens
+    el.style.pointerEvents = "none";
+    return () => {
+      el.style.pointerEvents = "";
+    };
+  }, [isSmallScreen]);
 
   useEffect(() => {
     if (!interacting) return;
@@ -65,11 +104,18 @@ export default function PageHeader() {
       <div className="bg-dots" aria-hidden />
 
       <div
+        ref={canvasWrapperRef}
         className="absolute top-0 left-0 w-full h-screen"
-        style={{ zIndex: 20 }}
+        style={{
+          zIndex: 10,
+          // On small screens, let pointer events pass through so user can scroll
+          pointerEvents: isSmallScreen ? "none" : "auto",
+          touchAction: isSmallScreen ? "pan-y" : "auto",
+        }}
       >
         <Canvas
           {...canvasConfig}
+          // Only enable pointer events for interaction on non-small screens
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
@@ -93,12 +139,16 @@ export default function PageHeader() {
             polar={[-Math.PI / 12, Math.PI / 12]}
             drag={0.96}
             sensitivity={0.005}
+            // Only allow 3D controls on non-small screens
+            enabled={!isSmallScreen}
             onStart={() => {
-              setInteracting(true);
+              if (!isSmallScreen) setInteracting(true);
             }}
-            onChange={() => invalidate()}
+            onChange={() => {
+              if (!isSmallScreen) invalidate();
+            }}
             onEnd={() => {
-              setInteracting(false);
+              if (!isSmallScreen) setInteracting(false);
             }}
           >
             <Center>

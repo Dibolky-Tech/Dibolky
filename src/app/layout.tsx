@@ -92,6 +92,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@100..900&display=swap" rel="stylesheet" />
+        
+        {/* Preload Barracuda Fonts for better performance */}
+        <link rel="preload" href="/assets/fonts/Barracuda-regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/Barracuda-Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="/assets/fonts/Barracuda-Light.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css" />
         <link rel="stylesheet" href="/assets/vendor/fancybox/css/fancybox.css" />
         <link rel="stylesheet" href="/assets/vendor/swiper/css/swiper-bundle.min.css" />

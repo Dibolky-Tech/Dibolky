@@ -3,9 +3,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Barracuda Font Face Declarations */
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barracuda';
+  src: url('/assets/fonts/Barracuda-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --font-poppins: 'Poppins', sans-serif;
   --font-big-shoulders: 'Big Shoulders Display', sans-serif;
+  --font-barracuda: 'Barracuda', serif;
 }
 
 * {
@@ -47,6 +97,47 @@ a {
 
 .font-big-shoulders {
   font-family: var(--font-big-shoulders);
+}
+
+/* Barracuda Font Utility Classes */
+.font-barracuda {
+  font-family: var(--font-barracuda);
+}
+
+.font-barracuda-light {
+  font-family: var(--font-barracuda);
+  font-weight: 300;
+  font-style: normal;
+}
+
+.font-barracuda-light-italic {
+  font-family: var(--font-barracuda);
+  font-weight: 300;
+  font-style: italic;
+}
+
+.font-barracuda-regular {
+  font-family: var(--font-barracuda);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.font-barracuda-italic {
+  font-family: var(--font-barracuda);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.font-barracuda-bold {
+  font-family: var(--font-barracuda);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.font-barracuda-bold-italic {
+  font-family: var(--font-barracuda);
+  font-weight: 700;
+  font-style: italic;
 }
 
 /* Prevent hydration issues with dynamic content */
