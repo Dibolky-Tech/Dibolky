@@ -15,7 +15,7 @@ export default function ScrollingText() {
             >
               <div className="tt-scrt-inner" >
                 <div className="tt-scrt-content" >
-                  Over 15 years of experience 
+                  Over 3 years of experience 
                   <span className="tt-scrt-separator">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                       <path d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z"></path>
@@ -30,7 +30,7 @@ export default function ScrollingText() {
                 <div className="tt-scrt-content"
                 style={{ color: '#CAFF00' }}
                 >
-                  Over 15 years of experience 
+                  Over 3 years of experience 
                   <span className="tt-scrt-separator">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
