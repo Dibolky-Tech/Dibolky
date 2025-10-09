@@ -1,92 +1,79 @@
-'use client'
+"use client";
+import { Canvas } from "@react-three/fiber";
+import {
+  Center,
+  Environment,
+  PerformanceMonitor,
+  AdaptiveDpr,
+  AdaptiveEvents,
+} from "@react-three/drei";
+import { Model } from "./Logo";
+import { BackgroundText } from "./BackgroundText";
+import { InertialControls } from "./InertialControls";
 import React, {
   useMemo,
   useState,
   useEffect,
   useCallback,
   useRef,
-} from 'react'
-import { Canvas, invalidate } from '@react-three/fiber'
-import {
-  Center,
-  Environment,
-  Lightformer,
-  PerformanceMonitor,
-  AdaptiveDpr,
-  AdaptiveEvents,
-} from '@react-three/drei'
-import { Model } from './Logo'
-import { BackgroundText } from './BackgroundText'
-import { InertialControls } from './InertialControls'
+} from "react";
+import { invalidate } from "@react-three/fiber";
 
-// Utility to detect small screens (mobile/tablet)
 function useIsSmallScreen(breakpoint = 768) {
-  const [isSmall, setIsSmall] = useState(false)
+  const [isSmall, setIsSmall] = useState(false);
   useEffect(() => {
     function check() {
-      setIsSmall(window.innerWidth < breakpoint)
+      setIsSmall(window.innerWidth < breakpoint);
     }
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [breakpoint])
-  return isSmall
-}
-
-// Utility to detect touch devices
-function useIsTouchDevice() {
-  const [isTouch, setIsTouch] = useState(false)
-  useEffect(() => {
-    function check() {
-      setIsTouch(
-        'ontouchstart' in window ||
-          navigator.maxTouchPoints > 0 ||
-          // @ts-ignore
-          navigator.msMaxTouchPoints > 0
-      )
-    }
-    check()
-    window.addEventListener('touchstart', check, { passive: true })
-    return () => window.removeEventListener('touchstart', check)
-  }, [])
-  return isTouch
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isSmall;
 }
 
 export default function PageHeader() {
-  const [interacting, setInteracting] = useState(false)
-  const [fpsFactor, setFpsFactor] = useState(1)
-  const isSmallScreen = useIsSmallScreen()
-  const isTouchDevice = useIsTouchDevice()
-  const canvasWrapperRef = useRef<HTMLDivElement>(null)
+  const [interacting, setInteracting] = useState(false);
+  const [dpr, setDpr] = useState(1);
+  const isSmallScreen = useIsSmallScreen();
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
-  const canvasConfig = useMemo(() => {
-    const baseDprSmall: [number, number] = [0.75, 1]
-    const baseDprLarge: [number, number] = [1, 1.25]
-    return {
+  const canvasConfig = useMemo(
+    () => ({
       camera: { position: [0, 0, 3] as [number, number, number], fov: 50 },
       gl: {
         alpha: true,
-        antialias: false,
-        powerPreference: 'high-performance' as const,
+        antialias: true,
+        powerPreference: "high-performance" as const,
         stencil: false,
         depth: true,
         failIfMajorPerformanceCaveat: false,
       },
-      dpr: isSmallScreen ? baseDprSmall : baseDprLarge,
-      performance: { min: 0.3 },
-      frameloop: 'demand' as const,
-    }
-  }, [isSmallScreen])
+      dpr: (isSmallScreen ? [0.75, 1] : [1, 1.5]) as [number, number],
+      performance: { min: 0.5 },
+      frameloop: "demand" as const,
+    }),
+    [isSmallScreen]
+  );
 
-  // Low during interaction or when FPS dips
-  const quality: 'low' | 'high' = interacting || fpsFactor < 0.8 ? 'low' : 'high'
+  const onPointerDown = useCallback(() => {
+    setInteracting(true);
+  }, []);
 
-  // Allow 3D interaction on all screens; on touch screens, allow scrolling as well
-  const onPointerDown = useCallback(() => setInteracting(true), [])
-  const onPointerUp = useCallback(() => setInteracting(false), [])
+  const onPointerUp = useCallback(() => {
+    setInteracting(false);
+  }, []);
 
-  // IMPORTANT: We DO NOT add a manual RAF loop here; InertialControls + demand
-  // invalidations already keep the renderer awake while motion exists.
+  useEffect(() => {
+    if (!interacting) return;
+    let raf = 0;
+    const tick = () => {
+      invalidate();
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [interacting]);
 
   return (
     <div
@@ -100,8 +87,8 @@ export default function PageHeader() {
         className="absolute top-0 left-0 w-full h-screen"
         style={{
           zIndex: 10,
-          pointerEvents: 'auto',
-          touchAction: isTouchDevice ? 'pan-y' : undefined, // allow vertical scroll on touch devices
+          pointerEvents: "auto",
+          touchAction: "pan-y",
         }}
       >
         <Canvas
@@ -115,54 +102,39 @@ export default function PageHeader() {
           <AdaptiveEvents />
 
           <PerformanceMonitor
-            onChange={({ factor }) => setFpsFactor(factor)}
-            flipflops={2}
+            onChange={({ factor }) => {
+              const newDpr = isSmallScreen 
+                ? Math.max(0.75, factor) 
+                : Math.max(1, factor * 1.5);
+              setDpr(newDpr);
+            }}
+            bounds={(fps) => (fps < 30 ? [0, 0] : fps > 55 ? [1, 1] : [0.5, 0.5])}
+            flipflops={3}
           />
-
-          {/* Simple, cheap light rig */}
-          <ambientLight intensity={0.5} />
+          
+          <ambientLight intensity={0.6} />
           <directionalLight position={[4, 6, 3]} intensity={0.9} />
 
-          {/* Environment: HDR when idle, ultra-cheap while moving */}
-          {quality === 'high' ? (
-            // Bake once, modest resolution
-            <Environment preset="city" resolution={256} frames={1} />
-          ) : (
-            <Environment resolution={64}>
-              <group>
-                <Lightformer
-                  intensity={1}
-                  position={[5, 2, 2]}
-                  scale={[10, 10, 1]}
-                />
-                <Lightformer
-                  intensity={0.5}
-                  position={[-5, -2, -2]}
-                  scale={[10, 10, 1]}
-                />
-              </group>
-            </Environment>
-          )}
+          <Environment preset="city" />
 
           <BackgroundText />
 
           <InertialControls
             polar={[-Math.PI / 12, Math.PI / 12]}
-            drag={0.96}
-            sensitivity={0.005}
+            drag={0.97}
+            sensitivity={0.004}
             onStart={() => {
-              setInteracting(true)
+              setInteracting(true);
             }}
             onChange={() => {
-              invalidate()
+              invalidate();
             }}
             onEnd={() => {
-              setInteracting(false)
+              setInteracting(false);
             }}
           >
             <Center>
-              {/* ✅ pass dynamic quality */}
-              <Model quality={quality} />
+              <Model quality="high" />
             </Center>
           </InertialControls>
         </Canvas>
@@ -296,5 +268,5 @@ export default function PageHeader() {
         }
       `}</style>
     </div>
-  )
+  );
 }

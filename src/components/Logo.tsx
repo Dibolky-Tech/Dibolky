@@ -10,28 +10,26 @@ interface ModelProps extends React.ComponentProps<'group'> {
 export function Model({ quality = 'high', ...props }: ModelProps) {
   const { nodes } = useGLTF('/assets/3d/Logo-Compressed.glb') as any
 
-  // High-quality transmission preset (kept modest to avoid spikes)
-  const matPropsHigh = useMemo(
-    () => ({
-      backside: true,
-      samples: 2,          // modest; 3–5 gets costly
-      resolution: 192,     // lower than default
-      ior: 1.6,
-      chromaticAberration: 0.003,
-      distortion: 0.03,
-      distortionScale: 0.15,
-      temporalDistortion: 0.0,
-      color: new THREE.Color(0xffffff),
-      attenuationDistance: 1.5,
-      attenuationColor: new THREE.Color(0xffffff),
-      roughness: 0.06,
-      anisotropicBlur: 0.01,
-      thickness: 0.8,
-      depthWrite: true,
-      depthTest: true,
-    }),
-    []
-  )
+  // Optimized material properties for consistent high quality with better performance
+  const matProps = useMemo(() => ({
+    backside: true,
+    samples: 3,
+    resolution: 256,
+    transmission: 1,
+    ior: 1.5,
+    chromaticAberration: 0.04,
+    anisotropy: 0.3,
+    distortion: 0.2,
+    distortionScale: 0.5,
+    temporalDistortion: 0.1,
+    color: new THREE.Color(0xffffff),
+    attenuationDistance: 0.5,
+    attenuationColor: new THREE.Color(0xffffff),
+    roughness: 0,
+    thickness: 1.5,
+    clearcoat: 1,
+    clearcoatRoughness: 0,
+  }), []);
 
   return (
     <group {...props} dispose={null} scale={6}>
@@ -42,17 +40,9 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
           geometry={nodes.Curve002?.geometry}
           position={[-0.003, 0.141, -0.442]}
           rotation={[Math.PI / 2, 0, 0]}
-          onUpdate={(m) => {
-            m.renderOrder = 2
-          }}
+          renderOrder={2}
         >
-          {quality === 'high' ? (
-            <MeshTransmissionMaterial {...matPropsHigh} />
-          ) : (
-            // Ultra-cheap during interaction / low FPS
-            <meshStandardMaterial color={new THREE.Color(0xffffff)}
-            metalness={0.1} roughness={0.25} />
-          )}
+          <MeshTransmissionMaterial {...matProps} />
         </mesh>
       </group>
     </group>
