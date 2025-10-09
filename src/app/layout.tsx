@@ -4,12 +4,12 @@ import StructuredData from '@/components/StructuredData'
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: 'Jesper Dietrich - Creative Portfolio Showcase',
+  title: 'Dibolky',
   description: 'Creative designer with over 15 years of experience in the design industry. Specializing in digital strategy, branding, UI/UX design, web design, and product design.',
   keywords: 'creative designer, portfolio, digital strategy, branding, UI/UX design, web design, product design, Melbourne',
-  authors: [{ name: 'Jesper Dietrich' }],
-  creator: 'Jesper Dietrich',
-  publisher: 'Jesper Dietrich',
+  authors: [{ name: 'Dibolky' }],
+  creator: 'Dibolky',
+  publisher: 'Dibolky',
   robots: {
     index: true,
     follow: true,
@@ -24,23 +24,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://jesper-dietrich.com',
-    title: 'Jesper Dietrich - Creative Portfolio Showcase',
-    description: 'Creative designer with over 15 years of experience in the design industry.',
-    siteName: 'Jesper Dietrich Portfolio',
+    url: 'https://dibolky.in',
+    title: 'Dibolky',
+    description: 'Digital strategy, branding, UI/UX design, web design, and product design.',
+    siteName: 'Dibolky Portfolio',
     images: [
       {
         url: '/assets/img/logo-light.png',
         width: 1200,
         height: 630,
-        alt: 'Jesper Dietrich - Creative Designer',
+        alt: 'Dibolky ',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Jesper Dietrich - Creative Portfolio Showcase',
-    description: 'Creative designer with over 15 years of experience in the design industry.',
+    title: 'Dibolky',
+    description: 'Digital strategy, branding, UI/UX design, web design, and product design.',
     images: ['/assets/img/logo-light.png'],
   },
   viewport: {
@@ -49,9 +49,9 @@ export const metadata: Metadata = {
     maximumScale: 1,
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    icon: '/assets/img/logo-light.png',
+    shortcut: '/assets/img/logo-light.png',
+    apple: '/assets/img/logo-light.png',
   },
 }
 

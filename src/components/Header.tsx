@@ -14,7 +14,7 @@ export default function Header() {
             <Link href="/" className="tt-magnetic-item">
               <Image 
                 src="/assets/img/logo-light.png" 
-                className="tt-logo-light" 
+                className="tt-logo-light " 
                 alt="Logo"
                 width={50}
                 height={30}
