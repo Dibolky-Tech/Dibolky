@@ -9,7 +9,7 @@ export default function AboutSection() {
         <div className="tt-row">
           <div className="tt-col-lg-4">
             <div className="tt-heading tt-heading-xlg">
-              <h2 style={{ fontFamily: "'Barracuda', 'Barracuda-regular', sans-serif" }} className="tt-heading-title tt-text-reveal">ABOUT UUS</h2>
+              <h2 style={{ fontFamily: "'Barracuda', 'Barracuda-regular', sans-serif" }} className="tt-heading-title tt-text-reveal">ABOUT UUUS</h2>
             </div>
             {/* <div className="tt-text-uppercase margin-top-30 tt-text-reveal">
               Creative designer<br /> based in Melbourne

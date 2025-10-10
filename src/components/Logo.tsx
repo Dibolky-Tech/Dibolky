@@ -14,23 +14,41 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
     if (quality === 'low') {
       return {
         // very cheap, good for interaction
+        // Don't render the inside faces of the mesh (better performance, less realism)
         backside: false,
+        // Only use 1 sample for transmission material (super fast, low quality)
         samples: 1,
+        // Set very low render resolution for the effect (faster, but more pixelated)
         resolution: 32, // super low for max performance
-
+        // Index of refraction - makes refraction basically "flat" (no bending)
+        ior: 1.0,
+        // Chromatic aberration (colored fringe effect at edges) disabled
         chromaticAberration: 0,
+        // No distortion to transmission (no glassy warping)
         distortion: 0,
+        // No extra scaling for distortion
         distortionScale: 0,
+        // No temporal distortion (i.e., no animated distortion)
         temporalDistortion: 0,
+        // Set base color to white
         color: new THREE.Color(0xffffff), // pure white
+        // No attenuation distance for light passing through
         attenuationDistance: 0,
+        // Set attenuation color to white (so no color tint)
         attenuationColor: new THREE.Color(0xffffff),
-
+        // Medium surface roughness (not fully glossy, not fully matte)
+        roughness: 0.4,
+        // Zero thickness, so mesh is infinitely thin (fast, not realistic)
         thickness: 0,
+        // Not transparent (fully opaque)
         transparent: false,
+        // Fully visible
         opacity: 1,
+        // Do write into the depth buffer (important for correct 3D rendering)
         depthWrite: true,
+        // Do depth test (ensure object is correctly occluded by others)
         depthTest: true,
+        // No blur for transmission (crisper, but less realistic)
         anisotropicBlur: 0,
       } as const
     }
