@@ -117,21 +117,14 @@ export default function PageHeader() {
 
           <BackgroundText />
 
-          <InertialControls
-            polar={[-Math.PI / 12, Math.PI / 12]}
-            drag={0.96}
-            sensitivity={0.005}
-            // Always allow 3D controls
-            onStart={() => {
-              setInteracting(true);
-            }}
-            onChange={() => {
-              invalidate();
-            }}
-            onEnd={() => {
-              setInteracting(false);
-            }}
-          >
+<InertialControls
+  polar={[-Math.PI / 12, Math.PI / 12]}
+  drag={0.96}
+  sensitivity={0.005}
+  onStart={() => setInteracting(true)}
+  onChange={() => invalidate()}
+  onEnd={() => setInteracting(false)}
+>
             <Center>
               <Model quality={isLowEnd ? "low" : "high"} />
             </Center>
