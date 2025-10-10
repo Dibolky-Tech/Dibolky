@@ -65,7 +65,7 @@ export default function RootLayout({
       <head>
         <StructuredData />
       </head>
-      <body className="tt-transition tt-noise tt-magic-cursor tt-smooth-scroll">
+      <body className="tt-transition  tt-magic-cursor tt-smooth-scroll">
         <main id="body-inner">
           {children}
         </main>
