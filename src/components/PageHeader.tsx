@@ -121,9 +121,13 @@ export default function PageHeader() {
   polar={[-Math.PI / 12, Math.PI / 12]}
   drag={0.96}
   sensitivity={0.005}
+  isLow={isLowEnd}
+  verticalEnabled={!isLowEnd}           // disable vertical tilt on low-end
+  preferScrollOnVertical={true}         // vertical swipe -> page scroll
   onStart={() => setInteracting(true)}
   onChange={() => invalidate()}
   onEnd={() => setInteracting(false)}
+
 >
             <Center>
               <Model quality={isLowEnd ? "low" : "high"} />

@@ -60,25 +60,31 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
       <group position={[0.003, -0.141, 0.21]}>
         {quality === 'low' ?
          <mesh
-         geometry={nodes.Curve002?.geometry}
-         position={[-0.003, 0.141, -0.442]}
-         rotation={[Math.PI / 2, 0, 0]}
-         onUpdate={(m) => (m.renderOrder = 2)}
-       >
-         {/* glossy, realistic white (cheap) */}
-         <meshStandardMaterial
-           color="#ffffff"
-           metalness={0}
-           roughness={0.18}
-           envMapIntensity={0.8}
-           dithering
-           polygonOffset
-           polygonOffsetFactor={1}
-           polygonOffsetUnits={1}
-         />
-         {/* crisp outline — use a concrete material, not material-* props */}
-         {/* <Edges threshold={22} renderOrder={3} material={edgeMat} /> */}
-       </mesh>
+            geometry={nodes.Curve002?.geometry}
+            position={[-0.003, 0.141, -0.442]}
+            rotation={[Math.PI / 2, 0, 0]}
+            onUpdate={(m) => (m.renderOrder = 2)}
+          >
+            {/* 
+              glossy, realistic white (cheap). 
+              - metalness: 0 means the surface is non-metallic, resulting in a more diffuse/lambertian look.
+              - roughness: 1.3 (although max roughness is 1, values above will clamp to 1) makes the surface very rough and matte, scattering reflections.
+              - envMapIntensity (if used): controls the strength of the environment mapping reflections on the material; higher means more reflection from the environment map.
+            */}
+            <meshStandardMaterial
+              color="#ffffff"
+              metalness={0}
+              roughness={1.3}
+            // envMapIntensity={0.8} // (Uncomment if using an environment map, 0.8 means 80% strength)
+              envMapIntensity={1.0}
+              dithering
+              polygonOffset
+              polygonOffsetFactor={1}
+              polygonOffsetUnits={1}
+            />
+            {/* crisp outline — use a concrete material, not material-* props */}
+            {/* <Edges threshold={22} renderOrder={3} material={edgeMat} /> */}
+          </mesh>
         :
         <mesh
           // Shadows off for perf

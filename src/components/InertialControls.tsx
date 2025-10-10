@@ -1,4 +1,4 @@
-// InertialControls.tsx — demand-frameloop friendly, smooth & efficient
+// InertialControls.tsx
 'use client'
 import * as React from 'react'
 import * as THREE from 'three'
@@ -6,15 +6,15 @@ import { useFrame, useThree } from '@react-three/fiber'
 
 type Props = {
   children: React.ReactNode
-  /** min/max vertical tilt in radians */
   polar?: [number, number]
-  /** per-frame damping factor (1 = no damping). Exponential & delta-corrected */
   drag?: number
-  /** pointer -> radians sensitivity */
   sensitivity?: number
-  /** stop threshold for velocities (smaller = longer coast) */
   epsilon?: number
-  /** callbacks (optional) */
+  verticalEnabled?: boolean
+  /** If true, a vertical-first gesture will be ignored so the page scrolls */
+  isLow?: boolean
+  preferScrollOnVertical?: boolean
+  gestureThreshold?: number // pixels to decide intent
   onStart?: () => void
   onChange?: () => void
   onEnd?: () => void
@@ -26,9 +26,13 @@ export function InertialControls({
   drag = 0.96,
   sensitivity = 0.005,
   epsilon = 0.00008,
+  verticalEnabled = true,
+  isLow = false,
+  preferScrollOnVertical = true,
+  gestureThreshold = 6,
   onStart,
   onChange,
-  onEnd
+  onEnd,
 }: Props) {
   const group = React.useRef<THREE.Group>(null!)
   const isDown = React.useRef(false)
@@ -36,24 +40,16 @@ export function InertialControls({
   const vel = React.useRef({ x: 0, y: 0 })
   const hadMotion = React.useRef(false)
   const pointerId = React.useRef<number | null>(null)
+  const intent = React.useRef<'undecided' | 'horizontal' | 'vertical'>('undecided')
 
   const { invalidate } = useThree()
-
-  // Helper: are we effectively stopped?
-  const isSleeping = () =>
-    Math.abs(vel.current.x) < epsilon && Math.abs(vel.current.y) < epsilon
-
-  // Keep renderer awake while dragging or coasting
-  // When active, we request a new frame by calling invalidate() each tick.
   const wake = React.useCallback(() => invalidate(), [invalidate])
 
-  // Visibility change: zero out velocities if tab is hidden (prevents huge deltas)
+  const sleeping = () => Math.abs(vel.current.x) < epsilon && Math.abs(vel.current.y) < epsilon
+
   React.useEffect(() => {
     const onVis = () => {
-      if (document.hidden) {
-        vel.current.x = 0
-        vel.current.y = 0
-      }
+      if (document.hidden) vel.current.x = vel.current.y = 0
     }
     document.addEventListener('visibilitychange', onVis, { passive: true })
     return () => document.removeEventListener('visibilitychange', onVis)
@@ -63,97 +59,97 @@ export function InertialControls({
     const g = group.current
     if (!g) return
 
-    // Exponential decay that is frame-rate independent
     const d = Math.pow(drag, delta * 60)
     vel.current.x *= d
     vel.current.y *= d
 
-    if (isSleeping()) {
-      // Call onEnd once when coming to rest
-      if (hadMotion.current) {
-        hadMotion.current = false
-        onEnd?.()
-      }
+    if (sleeping()) {
+      if (hadMotion.current) { hadMotion.current = false; onEnd?.() }
       return
     }
 
-    // Apply velocities
     g.rotation.y += vel.current.y
-    g.rotation.x = THREE.MathUtils.clamp(
-      g.rotation.x + vel.current.x,
-      polar[0],
-      polar[1]
-    )
+    const nextX = g.rotation.x + vel.current.x
+    g.rotation.x = THREE.MathUtils.clamp(nextX, polar[0], polar[1])
 
-    // We’re moving → inform listeners & ensure a frame is rendered
-    if (!hadMotion.current) {
-      hadMotion.current = true
-      onStart?.()
-    }
+    if (!hadMotion.current) { hadMotion.current = true; onStart?.() }
     onChange?.()
     wake()
   })
 
   const startDrag = (e: React.PointerEvent) => {
-    e.stopPropagation()
-    // Capture the pointer to avoid losing the drag outside the canvas
-    try {
-      (e.target as Element).setPointerCapture?.(e.pointerId)
-      pointerId.current = e.pointerId
-    } catch {}
+    // DO NOT stopPropagation here; we don’t know the intent yet
     isDown.current = true
     last.current = [e.clientX, e.clientY]
-    onStart?.()
-    wake()
+    intent.current = 'undecided'
   }
 
   const moveDrag = (e: React.PointerEvent) => {
     if (!isDown.current || !last.current) return
-    e.stopPropagation()
-    // If this move isn't from our pointer (multi-touch scenarios), ignore
-    if (pointerId.current !== null && e.pointerId !== pointerId.current) return
 
-    const dx = (e.clientX - last.current[0]) * sensitivity
-    const dy = (e.clientY - last.current[1]) * sensitivity
-    last.current = [e.clientX, e.clientY]
+    const [lx, ly] = last.current
+    const dxPx = e.clientX - lx
+    const dyPx = e.clientY - ly
 
-    // Y mouse drag spins around Y axis, X drag tilts up/down
-    vel.current.y += dx
-    vel.current.x -= dy
+    // Decide intent on first significant movement
+    if (intent.current === 'undecided') {
+      if (Math.abs(dxPx) < gestureThreshold && Math.abs(dyPx) < gestureThreshold && isLow) return
+      intent.current = Math.abs(dxPx) >= Math.abs(dyPx) ? 'horizontal' : 'vertical'
 
-    onChange?.()
-    wake()
+      if (intent.current === 'horizontal') {
+        // Now we capture to keep control
+        try {
+          (e.target as Element).setPointerCapture?.(e.pointerId)
+          pointerId.current = e.pointerId
+        } catch {}
+        e.stopPropagation()
+      } else {
+        // Vertical: let page handle scroll (don’t stopPropagation, don’t capture)
+        if (isLow && preferScrollOnVertical) {
+          endDrag() // reset internal state; let the page scroll
+          return
+        }
+      }
+    }
+
+    // From here we already decided
+    if (intent.current === 'horizontal') {
+      if (pointerId.current !== null && e.pointerId !== pointerId.current) return
+      e.stopPropagation()
+      last.current = [e.clientX, e.clientY]
+
+      const dx = dxPx * sensitivity
+      const dy = dyPx * sensitivity
+
+      vel.current.y += dx
+      if (verticalEnabled) vel.current.x -= dy // if disabled, ignore vertical tilt
+
+      onChange?.()
+      wake()
+    }
   }
 
   const endDrag = (e?: React.PointerEvent) => {
-    if (e) {
+    // Only stopPropagation if we actually captured
+    if (pointerId.current !== null && e) {
       e.stopPropagation()
-      try {
-        (e.target as Element).releasePointerCapture?.(e.pointerId)
-      } catch {}
+      try { (e.target as Element).releasePointerCapture?.(e.pointerId) } catch {}
     }
     isDown.current = false
     last.current = null
     pointerId.current = null
+    intent.current = 'undecided'
 
-    // If user let go and there’s no meaningful velocity, end immediately
-    if (isSleeping()) {
-      if (hadMotion.current) {
-        hadMotion.current = false
-        onEnd?.()
-      } else {
-        onEnd?.()
-      }
+    if (sleeping()) {
+      if (hadMotion.current) { hadMotion.current = false; onEnd?.() }
+      else onEnd?.()
     } else {
-      // Otherwise we’ll coast and onEnd will fire when damping stops it
-      wake()
+      wake() // will coast and call onEnd when stopped
     }
   }
 
   return (
     <group
-      // Important for touch devices to avoid page scrolling while dragging
-      // (Set on the canvas container via CSS too: touch-action: none)
       onPointerDown={startDrag}
       onPointerMove={moveDrag}
       onPointerUp={endDrag}
