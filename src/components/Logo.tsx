@@ -58,7 +58,28 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
   return (
     <group {...props} dispose={null} scale={6}>
       <group position={[0.003, -0.141, 0.21]}>
-        {quality === 'low' ? <mesh geometry={nodes.Curve002?.geometry} position={[-0.003, 0.141, -0.442]} rotation={[Math.PI / 2, 0, 0]} />:
+        {quality === 'low' ?
+         <mesh
+         geometry={nodes.Curve002?.geometry}
+         position={[-0.003, 0.141, -0.442]}
+         rotation={[Math.PI / 2, 0, 0]}
+         onUpdate={(m) => (m.renderOrder = 2)}
+       >
+         {/* glossy, realistic white (cheap) */}
+         <meshStandardMaterial
+           color="#ffffff"
+           metalness={0}
+           roughness={0.18}
+           envMapIntensity={0.8}
+           dithering
+           polygonOffset
+           polygonOffsetFactor={1}
+           polygonOffsetUnits={1}
+         />
+         {/* crisp outline — use a concrete material, not material-* props */}
+         {/* <Edges threshold={22} renderOrder={3} material={edgeMat} /> */}
+       </mesh>
+        :
         <mesh
           // Shadows off for perf
           castShadow={false}
