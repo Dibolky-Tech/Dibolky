@@ -1,5 +1,5 @@
 "use client";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   Center,
   Environment,
@@ -19,23 +19,24 @@ import React, {
 } from "react";
 import { invalidate } from "@react-three/fiber";
 
-function useIsSmallScreen(breakpoint = 768) {
-  const [isSmall, setIsSmall] = useState(false);
+function useLowEndDevice() {
+  const [isLow, setIsLow] = useState(false);
   useEffect(() => {
-    function check() {
-      setIsSmall(window.innerWidth < breakpoint);
-    }
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, [breakpoint]);
-  return isSmall;
+    const ua = navigator.userAgent || "";
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(ua);
+    // deviceMemory is an approximation: 1,2,4,8 ...
+    const mem = (navigator as any).deviceMemory || 4;
+    const low = isMobile && mem <= 2;
+    setIsLow(low);
+  }, []);
+  return isLow;
 }
+
 
 export default function PageHeader() {
   const [interacting, setInteracting] = useState(false);
-  const [dpr, setDpr] = useState(1);
-  const isSmallScreen = useIsSmallScreen();
+  const [fpsFactor, setFpsFactor] = useState(1);
+  const isLowEnd = useLowEndDevice();
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   const canvasConfig = useMemo(
@@ -43,26 +44,33 @@ export default function PageHeader() {
       camera: { position: [0, 0, 3] as [number, number, number], fov: 50 },
       gl: {
         alpha: true,
-        antialias: true,
+        antialias: false,
         powerPreference: "high-performance" as const,
         stencil: false,
         depth: true,
         failIfMajorPerformanceCaveat: false,
       },
-      dpr: (isSmallScreen ? [0.75, 1] : [1, 1.5]) as [number, number],
-      performance: { min: 0.5 },
+      dpr: [1, 1.25] as [number, number],
+      performance: { min: 0.3 },
       frameloop: "demand" as const,
     }),
-    [isSmallScreen]
+    []
   );
 
-  const onPointerDown = useCallback(() => {
-    setInteracting(true);
-  }, []);
 
-  const onPointerUp = useCallback(() => {
-    setInteracting(false);
-  }, []);
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      setInteracting(true);
+    },
+    []
+  );
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      setInteracting(false);
+    },
+    []
+  );
+
 
   useEffect(() => {
     if (!interacting) return;
@@ -88,7 +96,7 @@ export default function PageHeader() {
         style={{
           zIndex: 10,
           pointerEvents: "auto",
-          touchAction: "pan-y",
+          touchAction: "pan-y", // Always allow vertical scroll
         }}
       >
         <Canvas
@@ -102,16 +110,9 @@ export default function PageHeader() {
           <AdaptiveEvents />
 
           <PerformanceMonitor
-            onChange={({ factor }) => {
-              const newDpr = isSmallScreen 
-                ? Math.max(0.75, factor) 
-                : Math.max(1, factor * 1.5);
-              setDpr(newDpr);
-            }}
-            bounds={(fps) => (fps < 30 ? [0, 0] : fps > 55 ? [1, 1] : [0.5, 0.5])}
-            flipflops={3}
+            onChange={({ factor }) => setFpsFactor(factor)}
+            flipflops={2}
           />
-          
           <ambientLight intensity={0.6} />
           <directionalLight position={[4, 6, 3]} intensity={0.9} />
 
@@ -121,8 +122,9 @@ export default function PageHeader() {
 
           <InertialControls
             polar={[-Math.PI / 12, Math.PI / 12]}
-            drag={0.97}
-            sensitivity={0.004}
+            drag={0.96}
+            sensitivity={0.005}
+            // Always allow 3D controls
             onStart={() => {
               setInteracting(true);
             }}
@@ -134,7 +136,7 @@ export default function PageHeader() {
             }}
           >
             <Center>
-              <Model quality="high" />
+              <Model quality={isLowEnd ? "low" : "high"} />
             </Center>
           </InertialControls>
         </Canvas>

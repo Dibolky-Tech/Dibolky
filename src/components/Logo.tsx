@@ -10,39 +10,69 @@ interface ModelProps extends React.ComponentProps<'group'> {
 export function Model({ quality = 'high', ...props }: ModelProps) {
   const { nodes } = useGLTF('/assets/3d/Logo-Compressed.glb') as any
 
-  // Optimized material properties for consistent high quality with better performance
-  const matProps = useMemo(() => ({
-    backside: true,
-    samples: 3,
-    resolution: 256,
-    transmission: 1,
-    ior: 1.5,
-    chromaticAberration: 0.04,
-    anisotropy: 0.3,
-    distortion: 0.2,
-    distortionScale: 0.5,
-    temporalDistortion: 0.1,
-    color: new THREE.Color(0xffffff),
-    attenuationDistance: 0.5,
-    attenuationColor: new THREE.Color(0xffffff),
-    roughness: 0,
-    thickness: 1.5,
-    clearcoat: 1,
-    clearcoatRoughness: 0,
-  }), []);
+  const matProps = useMemo(() => {
+    if (quality === 'low') {
+      return {
+        // very cheap, good for interaction
+        backside: false,
+        samples: 1,
+        resolution: 32, // super low for max performance
+        ior: 1.0,
+        chromaticAberration: 0,
+        distortion: 0,
+        distortionScale: 0,
+        temporalDistortion: 0,
+        color: new THREE.Color(0xffffff), // pure white
+        attenuationDistance: 0,
+        attenuationColor: new THREE.Color(0xffffff),
+        roughness: 0.4,
+        thickness: 0,
+        transparent: false,
+        opacity: 1,
+        depthWrite: true,
+        depthTest: true,
+        anisotropicBlur: 0,
+      } as const
+    }
+    return {
+      backside: true,
+      samples: 2,        
+      resolution: 192,     //
+      ior: 1.6,
+      chromaticAberration: 0.003,
+      distortion: 0.03,
+      distortionScale: 0.15,
+      temporalDistortion: 0.0,
+      color: new THREE.Color(0xffffff),
+      attenuationDistance: 1.5,
+      attenuationColor: new THREE.Color(0xffffff),
+      roughness: 0.06,
+      anisotropicBlur: 0.01,
+      thickness: 0.8,
+      depthWrite: true,
+      depthTest: true
+    } as const
+  }, [quality])
+
+  
 
   return (
     <group {...props} dispose={null} scale={6}>
       <group position={[0.003, -0.141, 0.21]}>
         <mesh
+          // Shadows off for perf
           castShadow={false}
           receiveShadow={false}
           geometry={nodes.Curve002?.geometry}
           position={[-0.003, 0.141, -0.442]}
           rotation={[Math.PI / 2, 0, 0]}
-          renderOrder={2}
+          onUpdate={(m) => { m.renderOrder = 2 }}
         >
-          <MeshTransmissionMaterial {...matProps} />
+          <MeshTransmissionMaterial
+            {...matProps}
+            background={new THREE.Color(1, 1, 1).convertSRGBToLinear().setScalar(1).setRGB(1, 1, 1).lerp(new THREE.Color(0, 0, 0), 0.8)}
+            color={new THREE.Color(1, 1, 1).lerp(new THREE.Color(0, 0, 0), 0.7)}
+          />
         </mesh>
       </group>
     </group>
