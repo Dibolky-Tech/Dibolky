@@ -177,7 +177,7 @@ export default function PageHeader() {
         </ul>
       </div>
 
-      <div className="tt-scroll-down z-30">
+      <div className="tt-scroll-down " style={{zIndex: 30}}>
         <a
           href="#tt-page-content"
           className="tt-scroll-down-inner tt-magnetic-item"
