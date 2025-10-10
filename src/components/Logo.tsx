@@ -17,7 +17,7 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
         backside: false,
         samples: 1,
         resolution: 32, // super low for max performance
-        ior: 1.0,
+
         chromaticAberration: 0,
         distortion: 0,
         distortionScale: 0,
@@ -25,7 +25,7 @@ export function Model({ quality = 'high', ...props }: ModelProps) {
         color: new THREE.Color(0xffffff), // pure white
         attenuationDistance: 0,
         attenuationColor: new THREE.Color(0xffffff),
-        roughness: 0.4,
+
         thickness: 0,
         transparent: false,
         opacity: 1,

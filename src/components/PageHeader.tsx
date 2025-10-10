@@ -24,10 +24,7 @@ function useLowEndDevice() {
   useEffect(() => {
     const ua = navigator.userAgent || "";
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(ua);
-    // deviceMemory is an approximation: 1,2,4,8 ...
-    const mem = (navigator as any).deviceMemory || 4;
-    const low = isMobile && mem <= 2;
-    setIsLow(low);
+    setIsLow(isMobile);
   }, []);
   return isLow;
 }
