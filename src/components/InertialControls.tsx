@@ -96,8 +96,9 @@ export function InertialControls({
         lastDirection.current.y += (targetDirection.current.y - lastDirection.current.y) * lerpFactor
         lastDirection.current.z += (targetDirection.current.z - lastDirection.current.z) * lerpFactor
         
-        // Apply the floating motion - only X axis
-        g.rotation.x += lastDirection.current.x * delta
+        // Apply the floating motion - only X axis with constraints
+        const newX = g.rotation.x + lastDirection.current.x * delta
+        g.rotation.x = THREE.MathUtils.clamp(newX, -Math.PI / 6, Math.PI / 6) // Constrain X rotation to prevent upside down
         g.rotation.y += rotationSpeed // Only base rotation, no floating Y movement
         // No Y or Z floating rotation to prevent upside down
         

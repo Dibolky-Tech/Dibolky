@@ -14,29 +14,44 @@ import React, {
   useMemo,
   useState,
   useRef,
+  useEffect,
 } from "react";
 
 export default function PageHeader() {
   const [fpsFactor, setFpsFactor] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile devices
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                            window.innerWidth <= 768;
+      setIsMobile(isMobileDevice);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const canvasConfig = useMemo(
     () => ({
       camera: { position: [0, 0, 3] as [number, number, number], fov: 50 },
       gl: {
         alpha: true,
-        antialias: false,
-        powerPreference: "high-performance" as const,
+        antialias: !isMobile, // Disable antialiasing on mobile for performance
+        powerPreference: isMobile ? "low-power" : "high-performance" as const,
         stencil: false,
         depth: true,
         failIfMajorPerformanceCaveat: false,
       },
-      dpr: [1, 1.25] as [number, number],
-      performance: { min: 0.3 },
-      frameloop: "demand" as const,
+      dpr: isMobile ? [0.5, 1] : [1, 1.25] as [number, number], // Lower DPR on mobile
+      performance: { min: isMobile ? 0.1 : 0.3 }, // More aggressive performance monitoring on mobile
+      frameloop: isMobile ? "always" : "demand" as const, // Always render on mobile for smoother animation
       events: undefined, // Disable event handling
     }),
-    []
+    [isMobile]
   );
 
 
@@ -79,12 +94,12 @@ export default function PageHeader() {
 
 <InertialControls
   autoRotate={true}
-  autoRotateSpeed={0.3}
+  autoRotateSpeed={isMobile ? 0.1 : 0.3}
   autoRotateDirection="clockwise"
-  floating={true}
-  floatingIntensity={0.15}
-  floatingSpeed={0.4}
-  rotationVariation={0.2}
+  floating={!isMobile}
+  floatingIntensity={0.1}
+  floatingSpeed={0.3}
+  rotationVariation={0.1}
   polar={[-Math.PI / 12, Math.PI / 12]}
   drag={0.96}
 >
