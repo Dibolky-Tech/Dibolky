@@ -52,7 +52,7 @@ export default function PageHeader() {
         className="absolute top-0 left-0 w-full h-screen"
         style={{
           zIndex: 10,
-          pointerEvents: "auto",
+          pointerEvents: "none", // Allow touch events to pass through to page
           touchAction: "pan-y", // Always allow vertical scroll
         }}
       >
@@ -85,7 +85,7 @@ export default function PageHeader() {
   drag={0.96}
 >
             <Center>
-              <Model quality={"high"} />
+              <Model />
             </Center>
           </InertialControls>
         </Canvas>

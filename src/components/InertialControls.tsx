@@ -83,7 +83,7 @@ export function InertialControls({
           // Generate new random direction - only X and Y axes, no Z (no upside down)
           targetDirection.current = {
             x: (Math.random() - 0.5) * 2 * floatingIntensity, // X-axis rotation (pitch)
-            y: (Math.random() - 0.5) * 2 * floatingIntensity * 0.3, // Slight Y-axis rotation
+            y: (Math.random() - 0.5) * 2 * floatingIntensity * 0.15, // Reduced Y-axis rotation (18%)
             z: 0 // No Z-axis rotation to prevent upside down
           }
           directionChangeTime.current = 0
