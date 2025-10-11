@@ -80,10 +80,10 @@ export function InertialControls({
         // Change direction randomly every few seconds
         directionChangeTime.current += delta
         if (directionChangeTime.current >= directionChangeInterval.current) {
-          // Generate new random direction - only X and Y axes, no Z (no upside down)
+          // Generate new random direction - only X axis, no Y or Z (no upside down)
           targetDirection.current = {
             x: (Math.random() - 0.5) * 2 * floatingIntensity, // X-axis rotation (pitch)
-            y: (Math.random() - 0.5) * 2 * floatingIntensity * 0.15, // Reduced Y-axis rotation (18%)
+            y: 0, // No Y-axis rotation to prevent upside down
             z: 0 // No Z-axis rotation to prevent upside down
           }
           directionChangeTime.current = 0
@@ -96,10 +96,10 @@ export function InertialControls({
         lastDirection.current.y += (targetDirection.current.y - lastDirection.current.y) * lerpFactor
         lastDirection.current.z += (targetDirection.current.z - lastDirection.current.z) * lerpFactor
         
-        // Apply the floating motion - only X and Y axes
+        // Apply the floating motion - only X axis
         g.rotation.x += lastDirection.current.x * delta
-        g.rotation.y += lastDirection.current.y * delta + rotationSpeed // Combine with base rotation
-        // No Z-axis rotation to prevent upside down
+        g.rotation.y += rotationSpeed // Only base rotation, no floating Y movement
+        // No Y or Z floating rotation to prevent upside down
         
         // Add subtle random variation to rotation speed
         const speedVariation = 1 + (Math.sin(floatingTime.current * 0.5 + randomSeed.current) * rotationVariation)

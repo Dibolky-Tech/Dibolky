@@ -34,6 +34,7 @@ export default function PageHeader() {
       dpr: [1, 1.25] as [number, number],
       performance: { min: 0.3 },
       frameloop: "demand" as const,
+      events: undefined, // Disable event handling
     }),
     []
   );
@@ -54,10 +55,13 @@ export default function PageHeader() {
           zIndex: 10,
           pointerEvents: "none", // Allow touch events to pass through to page
           touchAction: "pan-y", // Always allow vertical scroll
+          userSelect: "none", // Prevent text selection
+          WebkitTouchCallout: "none", // Disable iOS callout
         }}
       >
         <Canvas
           {...canvasConfig}
+          style={{ pointerEvents: 'none' }}
         >
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
