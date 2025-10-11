@@ -1,5 +1,5 @@
 "use client";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   Center,
   Environment,
@@ -13,27 +13,11 @@ import { InertialControls } from "./InertialControls";
 import React, {
   useMemo,
   useState,
-  useEffect,
-  useCallback,
   useRef,
 } from "react";
-import { invalidate } from "@react-three/fiber";
-
-function useLowEndDevice() {
-  const [isLow, setIsLow] = useState(false);
-  useEffect(() => {
-    const ua = navigator.userAgent || "";
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(ua);
-    setIsLow(isMobile);
-  }, []);
-  return isLow;
-}
-
 
 export default function PageHeader() {
-  const [interacting, setInteracting] = useState(false);
   const [fpsFactor, setFpsFactor] = useState(1);
-  const isLowEnd = useLowEndDevice();
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   const canvasConfig = useMemo(
@@ -91,14 +75,17 @@ export default function PageHeader() {
 
 <InertialControls
   autoRotate={true}
-  autoRotateSpeed={0.5}
+  autoRotateSpeed={0.3}
   autoRotateDirection="clockwise"
+  floating={true}
+  floatingIntensity={0.15}
+  floatingSpeed={0.4}
+  rotationVariation={0.2}
   polar={[-Math.PI / 12, Math.PI / 12]}
   drag={0.96}
-  sensitivity={0.005}
 >
             <Center>
-              <Model quality={isLowEnd ? "low" : "high"} />
+              <Model quality={"high"} />
             </Center>
           </InertialControls>
         </Canvas>
