@@ -37,99 +37,21 @@ export default function Header() {
               <div className="tt-main-menu-inner">
                 <div className="tt-main-menu-content">
                   <ul className="tt-main-menu-list">
-                    <li className={`tt-submenu-wrap tt-submenu-master ${pathname === '/' ? 'active' : ''}`}>
-                      <div className="tt-submenu-trigger">
-                        <Link href="#">Home</Link>
-                      </div>
-                      <div className="tt-submenu">
-                        <ul className="tt-submenu-list">
-                          <li className={pathname === '/' ? 'active' : ''}>
-                            <Link href="/">Landing Page v.1</Link>
-                          </li>
-                          <li>
-                            <Link href="/landing-page-2">Landing Page v.2</Link>
-                          </li>
-                          <li>
-                            <Link href="/landing-page-3">Landing Page v.3</Link>
-                          </li>
-                        </ul>
-                      </div>
+                    <li className={`${pathname === '/' ? 'active' : ''}`}>
+                        <Link href="/">Home</Link>
                     </li>
 
-                    <li className="tt-submenu-wrap tt-submenu-master">
-                      <div className="tt-submenu-trigger">
-                        <Link href="#">Work</Link>
-                      </div>
-                      <div className="tt-submenu">
-                        <ul className="tt-submenu-list">
-                          <li><Link href="/portfolio">Creative Grid</Link></li>
-                          <li><Link href="/portfolio-masonry">Masonry Grid</Link></li>
-                          <li><Link href="/portfolio-classic">Classic Grid</Link></li>
-                          <li><Link href="/portfolio-compact">Compact List</Link></li>
-                          <li><Link href="/portfolio-preview">Preview List</Link></li>
-                          <li><Link href="/portfolio-sticky">Portfolio Sticky</Link></li>
-                          <li><Link href="/portfolio-slider">Fullscreen Slider</Link></li>
-                        </ul>
-                      </div>
+                    <li className={`${pathname === '/works' ? 'active' : ''}`}>
+                        <Link href="/projects">Work</Link>
                     </li>
 
                     <li className={pathname === '/about' ? 'active' : ''}><Link href="/about">About</Link></li>
 
-                    <li className="tt-submenu-wrap tt-submenu-master">
-                      <div className="tt-submenu-trigger">
-                        <Link href="#">Blog</Link>
-                      </div>
-                      <div className="tt-submenu">
-                        <ul className="tt-submenu-list">
-                          <li><Link href="/blog">Blog List</Link></li>
-                          <li><Link href="/blog-sidebar">Blog Sidebar</Link></li>
-                          <li><Link href="/blog-compact">Blog Compact</Link></li>
-                          <li><Link href="/blog-post">Blog Post</Link></li>
-                          <li><Link href="/blog-post-sidebar">Blog Post Sidebar</Link></li>
-                        </ul>
-                      </div>
-                    </li>
+                    <li className={pathname === '/blog' ? 'active' : ''}><Link href="#">Blog</Link></li>
+                    <li className={pathname === '/community' ? 'active' : ''}><Link href="#">Community</Link></li>
 
-                    <li className={`tt-submenu-wrap tt-submenu-master ${pathname === '/contact' ? 'active' : ''}`}>
-                      <div className="tt-submenu-trigger">
-                        <Link href="#">Contact</Link>
-                      </div>
-                      <div className="tt-submenu">
-                        <ul className="tt-submenu-list">
-                          <li className={pathname === '/contact' ? 'active' : ''}><Link href="/contact">Contact Form</Link></li>
-                          <li><Link href="/contact-simple">Contact Simple</Link></li>
-                        </ul>
-                      </div>
-                    </li>
+                    <li className={pathname === '/contact' ? 'active' : ''}><Link href="/contact">Contact</Link></li>
 
-                    <li className="tt-submenu-wrap tt-submenu-master">
-                      <div className="tt-submenu-trigger">
-                        <Link href="#">More</Link>
-                      </div>
-                      <div className="tt-submenu">
-                        <ul className="tt-submenu-list">
-                          <li className="tt-submenu-wrap">
-                            <div className="tt-submenu-trigger">
-                              <Link href="#">Extra Pages</Link>
-                            </div>
-                            <div className="tt-submenu">
-                              <ul className="tt-submenu-list">
-                                <li><Link href="/services">Services</Link></li>
-                                <li><Link href="/faq">FAQ</Link></li>
-                                <li><Link href="/dummy">Dummy Page v.1</Link></li>
-                                <li><Link href="/dummy-2">Dummy Page v.2</Link></li>
-                                <li><Link href="/404">404 Error</Link></li>
-                              </ul>
-                            </div>
-                          </li>
-                          <li><Link href="/elements">Elements</Link></li>
-                          <li><Link href="/elements-buttons">Buttons</Link></li>
-                          <li><Link href="/elements-forms">Forms</Link></li>
-                          <li><Link href="/elements-media">Multimedia</Link></li>
-                          <li><Link href="/elements-typography">Typography</Link></li>
-                        </ul>
-                      </div>
-                    </li>
                   </ul>
                 </div>
               </div>

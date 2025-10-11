@@ -55,30 +55,6 @@ export default function PageHeader() {
   );
 
 
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      setInteracting(true);
-    },
-    []
-  );
-  const onPointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      setInteracting(false);
-    },
-    []
-  );
-
-
-  useEffect(() => {
-    if (!interacting) return;
-    let raf = 0;
-    const tick = () => {
-      invalidate();
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [interacting]);
 
   return (
     <div
@@ -98,10 +74,6 @@ export default function PageHeader() {
       >
         <Canvas
           {...canvasConfig}
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          onPointerOut={onPointerUp}
         >
           <AdaptiveDpr pixelated />
           <AdaptiveEvents />
@@ -118,16 +90,12 @@ export default function PageHeader() {
           <BackgroundText />
 
 <InertialControls
+  autoRotate={true}
+  autoRotateSpeed={0.5}
+  autoRotateDirection="clockwise"
   polar={[-Math.PI / 12, Math.PI / 12]}
   drag={0.96}
   sensitivity={0.005}
-  isLow={isLowEnd}
-  verticalEnabled={!isLowEnd}           // disable vertical tilt on low-end
-  preferScrollOnVertical={true}         // vertical swipe -> page scroll
-  onStart={() => setInteracting(true)}
-  onChange={() => invalidate()}
-  onEnd={() => setInteracting(false)}
-
 >
             <Center>
               <Model quality={isLowEnd ? "low" : "high"} />
